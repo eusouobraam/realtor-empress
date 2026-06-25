@@ -416,14 +416,15 @@
       border-radius: 50%;
       border: 1px solid #fff;
       background: #000;
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.25s, transform 0.2s;
+      transition: background 0.25s, color 0.25s, transform 0.2s;
     }
     .slider-btn img { width: 24px; height: 24px; transition: filter 0.25s; }
-    .slider-btn:hover { background: #fff; transform: scale(1.08); }
+    .slider-btn:hover { background: #fff; color: #000; transform: scale(1.08); }
     .slider-btn:hover img { filter: invert(1); }
 
     /* ─── Testimonials ─── */
