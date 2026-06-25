@@ -1,0 +1,1210 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Realtor Empress</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@400,500,600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Clash Grotesk', 'Roboto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { display: block; }
+    a { text-decoration: none; }
+
+    /* ─── Keyframes ─── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(48px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scrollUp {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-50%); }
+    }
+    @keyframes navFade {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Scroll reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal.d1 { transition-delay: 0.1s; }
+    .reveal.d2 { transition-delay: 0.2s; }
+    .reveal.d3 { transition-delay: 0.3s; }
+    .reveal.d4 { transition-delay: 0.4s; }
+
+    /* ─── Navbar ─── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      padding: 20px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, padding 0.3s ease;
+      animation: navFade 0.6s ease both;
+    }
+    .nav.scrolled {
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 14px 80px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .nav-logo-icon { width: 24px; height: 21px; object-fit: contain; }
+    .nav-logo-wordmark { height: 20px; object-fit: contain; }
+    .nav-right { display: flex; align-items: center; gap: 32px; }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-link {
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      position: relative;
+      transition: opacity 0.2s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: #fff;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover { opacity: 0.75; }
+    .nav-link:hover::after { width: 100%; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-family: 'Clash Grotesk', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      cursor: pointer;
+      transition: background 0.25s, color 0.25s, transform 0.2s, box-shadow 0.25s;
+      border: 1px solid #fff;
+      white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.1); }
+    .btn-sm { padding: 8px 20px; }
+    .btn-md { padding: 12px 24px; }
+    .btn-white { background: #fff; color: #000; }
+    .btn-white:hover { background: #e8e8e8; }
+    .btn-outline { background: transparent; color: #fff; }
+    .btn-outline:hover { background: #fff; color: #000; }
+
+    /* ─── Mobile menu button ─── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: #fff;
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 199;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-menu.open { display: flex; opacity: 1; }
+    .mobile-nav-link {
+      color: #fff;
+      font-size: 32px;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .mobile-nav-link:hover { opacity: 0.6; }
+
+    /* ─── Hero ─── */
+    .hero {
+      position: relative;
+      background: #000;
+      min-height: 760px;
+      padding: 60px 80px 120px;
+      overflow: hidden;
+    }
+    .hero-container {
+      position: relative;
+      max-width: 1280px;
+      margin: 0 auto;
+      height: 640px;
+    }
+    .hero-image {
+      position: absolute;
+      top: 0; right: 0;
+      width: 624px; height: 640px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .hero-image img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transform: scale(1.05);
+      transition: transform 8s ease;
+    }
+    .hero-image:hover img { transform: scale(1); }
+    .hero-image::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 60%);
+      border-radius: 8px;
+    }
+    .hero-content {
+      position: absolute;
+      bottom: 96px; left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      max-width: 540px;
+    }
+    .hero-text { display: flex; flex-direction: column; gap: 24px; }
+    .hero-title {
+      font-weight: 500;
+      font-size: 56px;
+      line-height: 1.2;
+      animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+    }
+    .hero-subtitle {
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.5;
+      animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+    }
+    .hero-form {
+      display: flex;
+      gap: 16px;
+      animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+    }
+    .hero-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 4px;
+      background: transparent;
+      color: #fff;
+      font-family: 'Clash Grotesk', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color 0.25s;
+    }
+    .hero-input::placeholder { color: rgba(255,255,255,0.5); }
+    .hero-input:focus { border-color: #fff; }
+
+    /* ─── Not Your Average Realtor ─── */
+    .section-brand {
+      background: #000;
+      padding: 20px;
+    }
+    .section-brand-inner {
+      border-radius: 8px;
+      padding: 120px 80px;
+      background:
+        radial-gradient(ellipse 80% 80% at 50% 50%, #1c1c1c 0%, #0a0a0a 60%, #000 100%);
+    }
+    .brand-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      gap: 80px;
+      align-items: flex-start;
+    }
+    .brand-title {
+      flex: 1;
+      font-weight: 500;
+      font-size: 48px;
+      line-height: 1.2;
+    }
+    .brand-desc {
+      width: 624px;
+      flex-shrink: 0;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    /* ─── Why Choose Us ─── */
+    .section-why {
+      background: #000;
+      padding: 120px 80px;
+    }
+    .why-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+    }
+    .section-title {
+      font-weight: 500;
+      font-size: 48px;
+      line-height: 1.2;
+      text-align: center;
+    }
+    .cards-row { display: flex; gap: 32px; }
+    .why-card {
+      flex: 1;
+      height: 630px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px;
+      cursor: default;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .why-card:hover { transform: scale(1.025); }
+    .why-card-bg {
+      position: absolute;
+      inset: 0;
+    }
+    .why-card-bg img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .why-card:hover .why-card-bg img { transform: scale(1.08); }
+    .why-card-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 50%);
+    }
+    .why-card-text {
+      position: relative;
+      z-index: 1;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    /* ─── Experience Quote ─── */
+    .section-exp {
+      background: #000;
+      padding: 24px;
+    }
+    .section-exp-inner {
+      border-radius: 8px;
+      padding: 120px 80px;
+      background:
+        radial-gradient(ellipse 80% 80% at 50% 50%, #1c1c1c 0%, #0a0a0a 60%, #000 100%);
+    }
+    .exp-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .exp-inner {
+      max-width: 768px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      text-align: center;
+    }
+    .exp-text {
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 1.5;
+    }
+
+    /* ─── Portfolio / Slider ─── */
+    .section-portfolio {
+      background: #000;
+      padding: 120px 80px;
+    }
+    .portfolio-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+    }
+    .portfolio-subtitle {
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 1.5;
+      max-width: 656px;
+    }
+    .slider-wrapper { display: flex; flex-direction: column; gap: 48px; }
+    .slider-viewport { overflow: hidden; border-radius: 8px; }
+    .slider-track {
+      display: flex;
+      gap: 32px;
+      transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .slide-item {
+      flex-shrink: 0;
+      width: 400px;
+      height: 400px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .slide-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .slide-item:hover img { transform: scale(1.06); }
+    .slider-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .slider-dots { display: flex; gap: 8px; align-items: center; }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: background 0.25s, transform 0.25s;
+    }
+    .dot.active { background: #fff; transform: scale(1.25); }
+    .dot:hover { background: rgba(255,255,255,0.6); }
+    .slider-btns { display: flex; gap: 16px; }
+    .slider-btn {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+    }
+    .slider-btn img { width: 24px; height: 24px; transition: filter 0.25s; }
+    .slider-btn:hover { background: #fff; transform: scale(1.08); }
+    .slider-btn:hover img { filter: invert(1); }
+
+    /* ─── Testimonials ─── */
+    .section-testimonials {
+      background: #000;
+      padding: 120px 80px;
+      overflow: hidden;
+    }
+    .testimonials-container { max-width: 1280px; margin: 0 auto; }
+    .testimonials-inner {
+      display: flex;
+      height: 900px;
+      align-items: center;
+      overflow: hidden;
+    }
+    .testimonials-left {
+      flex: 0 0 min(560px, 45%);
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      justify-content: center;
+    }
+    .testimonials-heading {
+      font-weight: 500;
+      font-size: 56px;
+      line-height: 1.2;
+    }
+    .testimonials-desc {
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 1.5;
+      margin-top: 24px;
+    }
+    .testimonials-cols {
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      gap: 16px;
+      padding-right: 32px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    }
+    .t-col {
+      flex: 1;
+      overflow: hidden;
+    }
+    .t-col-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: scrollUp 22s linear infinite;
+    }
+    .t-col:nth-child(2) .t-col-inner {
+      animation-duration: 30s;
+      animation-delay: -8s;
+    }
+    .t-col-inner:hover { animation-play-state: paused; }
+    .t-card {
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.3s, background 0.3s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .t-card:hover {
+      border-color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.05);
+      transform: translateX(4px);
+    }
+    .t-stars { height: 20px; width: 120px; object-fit: contain; }
+    .t-quote {
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+    .t-author {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .t-avatar {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .t-name {
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .t-role {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.4;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    /* ─── Footer ─── */
+    .footer {
+      background: #000;
+      padding: 80px;
+    }
+    .footer-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 96px;
+    }
+    .footer-top {
+      display: flex;
+      gap: 64px;
+      align-items: flex-start;
+    }
+    .footer-brand {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-logo-icon { width: 24px; height: 21px; object-fit: contain; }
+    .footer-logo-wordmark { height: 20px; object-fit: contain; }
+    .social-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .social-icon {
+      width: 24px; height: 24px;
+      object-fit: contain;
+      opacity: 0.8;
+      transition: opacity 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .social-icon:hover { opacity: 1; transform: translateY(-3px); }
+    .footer-nav {
+      display: flex;
+      gap: 32px;
+      max-width: 400px;
+    }
+    .footer-nav-col {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .footer-nav-link {
+      color: #fff;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: 8px 0;
+      transition: opacity 0.2s;
+    }
+    .footer-nav-link:hover { opacity: 0.6; }
+    .footer-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+    .footer-bigname img { width: 100%; object-fit: contain; }
+    .footer-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.18);
+    }
+    .footer-legal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.8);
+    }
+    .footer-legal-links {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-legal-link {
+      color: rgba(255,255,255,0.8);
+      text-decoration: underline;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .footer-legal-link:hover { color: #fff; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 1100px) {
+      .hero { padding: 60px 48px 100px; }
+      .nav { padding: 20px 48px; }
+      .nav.scrolled { padding: 14px 48px; }
+      .hero-image { width: 50%; }
+      .hero-content { max-width: 46%; }
+      .hero-title { font-size: 42px; }
+      .section-brand-inner,
+      .section-exp-inner { padding: 80px 48px; }
+      .section-why { padding: 80px 48px; }
+      .section-portfolio { padding: 80px 48px; }
+      .section-testimonials { padding: 80px 48px; }
+      .footer { padding: 60px 48px; }
+      .brand-desc { width: auto; flex: 1; }
+      .brand-container { gap: 48px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav { padding: 20px 24px; }
+      .nav.scrolled { padding: 14px 24px; }
+      .nav-links, .nav .btn { display: none; }
+      .hamburger { display: flex; }
+
+      .hero {
+        padding: 100px 24px 60px;
+        min-height: auto;
+      }
+      .hero-container { height: auto; }
+      .hero-image {
+        position: relative;
+        width: 100%; height: 300px;
+        top: auto; right: auto;
+        margin-top: 32px;
+      }
+      .hero-content {
+        position: relative;
+        bottom: auto; left: auto;
+        max-width: 100%;
+      }
+      .hero-title { font-size: 36px; }
+      .hero-subtitle { font-size: 16px; }
+      .hero-form { flex-direction: column; }
+
+      .section-brand { padding: 12px; }
+      .section-brand-inner { padding: 60px 24px; border-radius: 8px; }
+      .brand-container { flex-direction: column; gap: 24px; }
+      .brand-title { font-size: 32px; }
+      .brand-desc { width: 100%; font-size: 16px; }
+
+      .section-why { padding: 60px 24px; }
+      .cards-row { flex-direction: column; }
+      .why-card { height: 380px; }
+      .section-title { font-size: 32px; }
+
+      .section-exp { padding: 12px; }
+      .section-exp-inner { padding: 60px 24px; border-radius: 8px; }
+      .exp-text { font-size: 18px; }
+
+      .section-portfolio { padding: 60px 24px; }
+      .portfolio-subtitle { font-size: 18px; }
+      .slide-item { width: 260px; height: 260px; }
+
+      .section-testimonials {
+        padding: 60px 24px;
+        overflow: hidden;
+      }
+      .testimonials-inner {
+        flex-direction: column;
+        height: auto;
+        gap: 48px;
+      }
+      .testimonials-left {
+        flex: none;
+        width: 100%;
+        padding: 0;
+      }
+      .testimonials-heading { font-size: 36px; }
+      .testimonials-desc { font-size: 18px; }
+      .testimonials-cols { height: 500px; padding-right: 0; }
+
+      .footer { padding: 48px 24px; }
+      .footer-top { flex-direction: column; gap: 32px; }
+      .footer-legal {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .footer-legal-links { flex-wrap: wrap; gap: 12px; }
+      .footer-container { gap: 60px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .t-col-inner { animation: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .hero-title, .hero-subtitle, .hero-form { animation: none; opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════ NAV -->
+  <nav class="nav" id="navbar">
+    <a href="#home" class="nav-logo">
+      <img src="images/logo-icon.png" alt="RE logo icon" class="nav-logo-icon" />
+      <img src="images/logo-wordmark.png" alt="Realtor Empress" class="nav-logo-wordmark" />
+    </a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#services" class="nav-link">Services</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
+      </ul>
+      <a href="#contact" class="btn btn-white btn-sm">Contact</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services" class="mobile-nav-link" data-close>Services</a>
+    <a href="#about"    class="mobile-nav-link" data-close>About</a>
+    <a href="#projects" class="mobile-nav-link" data-close>Projects</a>
+    <a href="#testimonials" class="mobile-nav-link" data-close>Testimonials</a>
+    <a href="#contact"  class="btn btn-white btn-md" data-close>Contact</a>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ HERO -->
+  <section class="hero" id="home">
+    <div class="hero-container">
+      <div class="hero-image">
+        <img src="images/hero-main.jpg" alt="Luxury property" loading="eager" />
+      </div>
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">Want To Get The<br>Most Return From<br>Your Property?</h1>
+          <p class="hero-subtitle">ROI Consultation, Design + Marketing Services</p>
+        </div>
+        <div class="hero-form" id="contact">
+          <input type="email" class="hero-input" placeholder="Enter your email" aria-label="Email address" />
+          <button class="btn btn-white btn-md">Talk to Specialists!</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ NOT YOUR AVERAGE REALTOR -->
+  <section class="section-brand" id="about">
+    <div class="section-brand-inner">
+      <div class="brand-container">
+        <h2 class="brand-title reveal">Not Your Average Realtor</h2>
+        <p class="brand-desc reveal d1">
+          Realtor Empress has an eye for seeing a property's potential, coordinating design, and effectively marketing to get homeowners top dollar on their sale.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ WHY CHOOSE US -->
+  <section class="section-why" id="services">
+    <div class="why-container">
+      <h2 class="section-title reveal">Why Choose Us?</h2>
+      <div class="cards-row">
+
+        <div class="why-card reveal d1">
+          <div class="why-card-bg">
+            <img src="images/card-roi.jpg" alt="Potential ROI" loading="lazy" />
+          </div>
+          <p class="why-card-text">
+            <strong>Potential ROI</strong> — Whether you are looking to buy a fixer upper or renovate your current home for sale. We will walk you through potential returns for projects.
+          </p>
+        </div>
+
+        <div class="why-card reveal d2">
+          <div class="why-card-bg">
+            <img src="images/card-design.jpg" alt="Design" loading="lazy" />
+          </div>
+          <p class="why-card-text">
+            <strong>Design</strong> — Our background in interior design makes the perfect guide through your design options and coordinating contractors to complete the home upgrade.
+          </p>
+        </div>
+
+        <div class="why-card reveal d3">
+          <div class="why-card-bg">
+            <img src="images/card-marketing.jpg" alt="Marketing" loading="lazy" />
+          </div>
+          <p class="why-card-text">
+            <strong>Marketing</strong> — Staging consultation, professional photos and a sophisticated digital marketing plan accompany every listing to reach today's buyers.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ EXPERIENCE QUOTE -->
+  <section class="section-exp">
+    <div class="section-exp-inner">
+      <div class="exp-container">
+        <div class="exp-inner">
+          <p class="exp-text reveal">
+            Fourteen years of experience in real estate, excellent customer service and a commitment to work hard, listen and follow through. We provide quality service to build relationships with clients and more importantly, maintain those relationships by communicating effectively.
+          </p>
+          <a href="#about" class="btn btn-white btn-md reveal d1">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ PORTFOLIO SLIDER -->
+  <section class="section-portfolio" id="projects">
+    <div class="portfolio-container">
+      <p class="portfolio-subtitle reveal">
+        We know what buyers are looking for and suggest projects that will bring her clients Top Dollar for the sale of their home.
+      </p>
+      <div class="slider-wrapper">
+        <div class="slider-viewport">
+          <div class="slider-track" id="sliderTrack">
+            <div class="slide-item">
+              <img src="images/portfolio-1.jpg" alt="Project 1" loading="lazy" />
+            </div>
+            <div class="slide-item">
+              <img src="images/portfolio-2.jpg" alt="Project 2" loading="lazy" />
+            </div>
+            <div class="slide-item">
+              <img src="images/portfolio-3.jpg" alt="Project 3" loading="lazy" />
+            </div>
+            <div class="slide-item">
+              <img src="images/portfolio-4.jpg" alt="Project 4" loading="lazy" />
+            </div>
+          </div>
+        </div>
+        <div class="slider-controls">
+          <div class="slider-dots" id="sliderDots">
+            <div class="dot active" data-i="0"></div>
+            <div class="dot"        data-i="1"></div>
+            <div class="dot"        data-i="2"></div>
+            <div class="dot"        data-i="3"></div>
+          </div>
+          <div class="slider-btns">
+            <button class="slider-btn" id="prevBtn" aria-label="Previous">
+              <img src="images/arrow-back.png" alt="prev" />
+            </button>
+            <button class="slider-btn" id="nextBtn" aria-label="Next">
+              <img src="images/arrow-forward.png" alt="next" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ TESTIMONIALS -->
+  <section class="section-testimonials" id="testimonials">
+    <div class="testimonials-container">
+      <div class="testimonials-inner">
+
+        <div class="testimonials-left reveal">
+          <div>
+            <h2 class="testimonials-heading">Testimonials</h2>
+            <p class="testimonials-desc">
+              Learn more about our listing process, as well as our additional staging and design work.
+            </p>
+          </div>
+          <a href="#" class="btn btn-outline btn-md">Learn more</a>
+        </div>
+
+        <div class="testimonials-cols">
+          <!-- Column 1 -->
+          <div class="t-col">
+            <div class="t-col-inner">
+              <!-- 4 cards × 2 (duplicate for seamless loop) -->
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Realtor Empress transformed our outdated house into a modern masterpiece. Their design expertise and marketing skills are unmatched."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-1.jpg" alt="Candice Bergen" class="t-avatar" />
+                  <div><p class="t-name">Candice Bergen</p><p class="t-role">Satisfied Seller, Bergen Properties</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Working with Realtor Empress was an absolute pleasure. She knew exactly what our home needed to sell fast and above asking price."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-2.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Amanda Welles</p><p class="t-role">Home Seller, North Side</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Realtor Empress's eye for design turned our dated property into a stunning home that sold in under a week. Exceptional service."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-3.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Marcus Reed</p><p class="t-role">Property Investor</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"The ROI analysis alone was worth every penny. We followed her recommendations and netted 22% more than comparable listings."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-4.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Diane Fontaine</p><p class="t-role">Satisfied Seller, Bergen Properties</p></div>
+                </div>
+              </div>
+              <!-- duplicate -->
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Realtor Empress transformed our outdated house into a modern masterpiece. Their design expertise and marketing skills are unmatched."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-1.jpg" alt="Candice Bergen" class="t-avatar" />
+                  <div><p class="t-name">Candice Bergen</p><p class="t-role">Satisfied Seller, Bergen Properties</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Working with Realtor Empress was an absolute pleasure. She knew exactly what our home needed to sell fast and above asking price."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-2.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Amanda Welles</p><p class="t-role">Home Seller, North Side</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Realtor Empress's eye for design turned our dated property into a stunning home that sold in under a week. Exceptional service."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-3.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Marcus Reed</p><p class="t-role">Property Investor</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"The ROI analysis alone was worth every penny. We followed her recommendations and netted 22% more than comparable listings."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-4.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Diane Fontaine</p><p class="t-role">Satisfied Seller, Bergen Properties</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="t-col">
+            <div class="t-col-inner" style="animation-duration:30s; animation-delay:-12s;">
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Realtor Empress is a true professional. They provided expert guidance and support every step of the way. I highly recommend their services."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-4.jpg" alt="Gwyneth Paltrow" class="t-avatar" />
+                  <div><p class="t-name">Gwyneth Paltrow</p><p class="t-role">Home Buyer, Goop</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"She staged our home beautifully, and the professional photography made it look like a magazine spread. We had 12 offers in 3 days."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-5.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Sarah Whitmore</p><p class="t-role">First-time Seller</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"From the renovation consultation to closing day, the entire process was seamless. I couldn't have asked for a better realtor."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-1.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">James Thornton</p><p class="t-role">Property Developer</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"The digital marketing strategy was unlike anything I'd seen in real estate. My listing went viral locally and sold 18% above asking."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-4.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Nicole Pearce</p><p class="t-role">Home Seller, Westside</p></div>
+                </div>
+              </div>
+              <!-- duplicate -->
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"Realtor Empress is a true professional. They provided expert guidance and support every step of the way. I highly recommend their services."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-4.jpg" alt="Gwyneth Paltrow" class="t-avatar" />
+                  <div><p class="t-name">Gwyneth Paltrow</p><p class="t-role">Home Buyer, Goop</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"She staged our home beautifully, and the professional photography made it look like a magazine spread. We had 12 offers in 3 days."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-5.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Sarah Whitmore</p><p class="t-role">First-time Seller</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"From the renovation consultation to closing day, the entire process was seamless. I couldn't have asked for a better realtor."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-1.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">James Thornton</p><p class="t-role">Property Developer</p></div>
+                </div>
+              </div>
+              <div class="t-card">
+                <div>
+                  <img src="images/stars.png" alt="5 stars" class="t-stars" />
+                  <p class="t-quote">"The digital marketing strategy was unlike anything I'd seen in real estate. My listing went viral locally and sold 18% above asking."</p>
+                </div>
+                <div class="t-author">
+                  <img src="images/avatar-4.jpg" alt="Client" class="t-avatar" />
+                  <div><p class="t-name">Nicole Pearce</p><p class="t-role">Home Seller, Westside</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /testimonials-cols -->
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="images/logo-icon.png" alt="RE logo icon" class="footer-logo-icon" />
+            <img src="images/logo-wordmark.png" alt="Realtor Empress" class="footer-logo-wordmark" />
+          </div>
+          <div class="social-row">
+            <a href="#" aria-label="Facebook">
+              <img src="images/icon-facebook.png" alt="Facebook" class="social-icon" />
+            </a>
+            <a href="#" aria-label="Instagram">
+              <img src="images/icon-instagram.png" alt="Instagram" class="social-icon" />
+            </a>
+            <a href="#" aria-label="X">
+              <img src="images/icon-x.png" alt="X" class="social-icon" />
+            </a>
+            <a href="#" aria-label="LinkedIn">
+              <img src="images/icon-linkedin.png" alt="LinkedIn" class="social-icon" />
+            </a>
+            <a href="#" aria-label="YouTube">
+              <img src="images/icon-youtube.png" alt="YouTube" class="social-icon" />
+            </a>
+          </div>
+        </div>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-nav-col">
+            <a href="#services"      class="footer-nav-link">Services</a>
+            <a href="#projects"      class="footer-nav-link">Projects</a>
+          </div>
+          <div class="footer-nav-col">
+            <a href="#about"         class="footer-nav-link">About</a>
+            <a href="#testimonials"  class="footer-nav-link">Testimonials</a>
+          </div>
+        </nav>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-bigname">
+          <img src="images/footer-bigname.png" alt="Realtor Empress" loading="lazy" />
+        </div>
+        <div>
+          <div class="footer-divider"></div>
+          <div class="footer-legal" style="margin-top:32px;">
+            <p>© 2024 Realtor Empress. All rights reserved.</p>
+            <div class="footer-legal-links">
+              <a href="#" class="footer-legal-link">Privacy Policy</a>
+              <a href="#" class="footer-legal-link">Terms of Service</a>
+              <a href="#" class="footer-legal-link">Cookies Settings</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════ SCRIPTS -->
+  <script>
+    /* ── Navbar scroll ── */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    /* ── Hamburger / mobile menu ── */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      const open = hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    document.querySelectorAll('[data-close]').forEach(el => {
+      el.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    /* ── Scroll reveal (IntersectionObserver) ── */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ── Portfolio slider ── */
+    const track   = document.getElementById('sliderTrack');
+    const dots    = document.querySelectorAll('.dot');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const items   = track.querySelectorAll('.slide-item');
+    let current   = 0;
+
+    function itemStep() {
+      return items[0].offsetWidth + 32; /* width + gap */
+    }
+
+    function goTo(idx) {
+      const max = items.length - 1;
+      current = Math.max(0, Math.min(idx, max));
+      track.style.transform = `translateX(-${current * itemStep()}px)`;
+      dots.forEach((d, i) => d.classList.toggle('active', i === current));
+      prevBtn.style.opacity = current === 0   ? '0.35' : '1';
+      nextBtn.style.opacity = current === max ? '0.35' : '1';
+    }
+
+    prevBtn.addEventListener('click', () => goTo(current - 1));
+    nextBtn.addEventListener('click', () => goTo(current + 1));
+    dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.i)));
+
+    /* Auto-advance every 4 s */
+    setInterval(() => goTo(current < items.length - 1 ? current + 1 : 0), 4000);
+
+    goTo(0);
+
+    /* Swipe support for slider */
+    let touchStartX = 0;
+    track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) goTo(dx < 0 ? current + 1 : current - 1);
+    });
+  </script>
+</body>
+</html>
+
